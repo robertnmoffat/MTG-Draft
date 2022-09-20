@@ -4,9 +4,12 @@ function Card(properties) {
     return (
         <img
             className={properties.isSelected === "true" ? "selected-card" : "pack-card"}
-            onClick={() => { properties.selectCard(properties.id) }}
+            onClick={() => {
+                if(properties.isSelected==="false")
+                    properties.selectCard(properties.id)
+            }}
             src={properties.imageUrl}
-            style={{width:"223px", height:"311px"}}
+            style={{ width: "223px", height: "311px" }}
         />
     );
 }

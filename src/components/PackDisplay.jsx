@@ -1,14 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import Card from "./Card"
+import Pack from "../Pack"
 
 
 function PackDisplay(properties) {
-    let emptyPack = [];
-    //Create empty pack data while loading data from API.
-    for (let i = 0; i < 14; i++) {
-        emptyPack[i] = { name: "loading...", imageUrl: "./mtg-back.jpg" };
-    }
-    let [pack, setPack] = useState(emptyPack);
+    let [pack, setPack] = useState(Pack.getEmptyPack());
 
     //Reference for accessing window size.
     const ref = useRef(null);
@@ -18,12 +14,7 @@ function PackDisplay(properties) {
      */
     useEffect(() => {
         if (pack[0].name === "loading...") {
-            fetch("https://api.magicthegathering.io/v1/sets/ktk/booster")
-                .then(res => res.json())
-                .then(json => {
-                    setPack(json.cards);
-                }
-                )
+            Pack.fetchPack(setPack);
         }
 
         //Call reset to reference of page height when it has changed.
@@ -44,26 +35,22 @@ function PackDisplay(properties) {
             properties.setSidebarHeight(ref.current.clientHeight);
     }
 
-    /**
-     * Removes a card from the pack array and adds it to the selectedCards array.
-     * @param {Array index of selected card.} index 
-     */
-    function selectCard(index) {
-        console.log("Index:" + index);
-        properties.setSelectedCards((old) => {
-            return [...old, pack[index]];
-        });
-        setPack((old) => {
-            return old.filter((card, i) => {
-                return i !== index;
-            });
-        });
+    function selectCard(index){
+        Pack.selectCard(properties.setSelectedCards, setPack, pack, index)
     }
 
     return (
         <div ref={ref} id="card-space" className="body-text">
             {pack.map((card, index) => {
-                return <Card isSelected="false" selectCard={selectCard} key={index} id={index} imageUrl={card.imageUrl} />
+                return (
+                    <Card
+                        isSelected="false"
+                        selectCard={selectCard}
+                        key={index}
+                        id={index}
+                        imageUrl={card.imageUrl}
+                    />
+                )
             })}
         </div>
     );
