@@ -1,0 +1,29 @@
+html, body { height: 100%; }
+
+header {
+    height:100px;
+    background-color: lightblue;
+    border-bottom-style: solid;
+}
+
+.sidebar {
+    align-items: stretch;
+    width: 250px;
+    position: absolute;
+    left: 0;
+    top: 100px;
+    padding-top: 40px;
+    background-color: lightblue;
+}
+
+.sidebar div {
+    padding: 8px;
+    font-size: 24px;
+    display: block;
+}
+
+.body-text {
+    margin-top: 10px;
+    margin-left: 260px;
+    font-size: 18px;
+}
