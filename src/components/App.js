@@ -3,20 +3,18 @@ import { useRef } from "react";
 import Header from "./Header"
 import Sidebar from "./Sidebar"
 import PackDisplay from "./PackDisplay"
+import { useEffect } from "react";
 
 let num = 0;
 
-function App() {  
+function App() {
   let [sidebarHeight, setSidebarHeight] = useState("100vh");
-
-  //Reference for accessing window size.
-  const ref = useRef(null);
 
   return (
     <div className="App">
       <Header />
-      <Sidebar setSidebarHeight={setSidebarHeight} height={sidebarHeight} />
-      <PackDisplay />
+      <Sidebar height={sidebarHeight} />
+      <PackDisplay setSidebarHeight={setSidebarHeight} />
     </div>
   );
 }
