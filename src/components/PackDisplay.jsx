@@ -9,7 +9,6 @@ function PackDisplay(properties) {
         emptyPack[i] = { name: "loading...", imageUrl: "./mtg-back.jpg" };
     }
     let [pack, setPack] = useState(emptyPack);
-    let [selectedCards, setSelectedCards] = useState([]);
 
     //Reference for accessing window size.
     const ref = useRef(null);
@@ -26,7 +25,18 @@ function PackDisplay(properties) {
                 }
                 )
         }
+
+        //Call reset to reference of page height when it has changed.
+        window.addEventListener('resize', handleResize)
     }, []);
+
+    /**
+     * This useEffect is to be called every time the component is refreshed.
+     */
+    useEffect(() => {
+        //Call a resize every time the content is refreshed
+        handleResize();
+    });
 
     //Reset the reference to page height.
     function handleResize() {
@@ -34,19 +44,13 @@ function PackDisplay(properties) {
             properties.setSidebarHeight(ref.current.clientHeight);
     }
 
-    //Call reset to reference of page height when it has changed.
-    window.addEventListener('resize', handleResize)
-
-    //Call a resize every time the content is refreshed
-    handleResize();
-
     /**
      * Removes a card from the pack array and adds it to the selectedCards array.
      * @param {Array index of selected card.} index 
      */
     function selectCard(index) {
         console.log("Index:" + index);
-        setSelectedCards((old) => {
+        properties.setSelectedCards((old) => {
             return [...old, pack[index]];
         });
         setPack((old) => {
@@ -59,7 +63,7 @@ function PackDisplay(properties) {
     return (
         <div ref={ref} id="card-space" className="body-text">
             {pack.map((card, index) => {
-                return <Card selectCard={selectCard} key={index} id={index} imageUrl={card.imageUrl} />
+                return <Card isSelected="false" selectCard={selectCard} key={index} id={index} imageUrl={card.imageUrl} />
             })}
         </div>
     );

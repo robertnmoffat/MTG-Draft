@@ -9,12 +9,13 @@ let num = 0;
 
 function App() {
   let [sidebarHeight, setSidebarHeight] = useState("100vh");
+  let [selectedCards, setSelectedCards] = useState([]);
 
   return (
     <div className="App">
       <Header />
-      <Sidebar height={sidebarHeight} />
-      <PackDisplay setSidebarHeight={setSidebarHeight} />
+      <Sidebar selectedCards={selectedCards} height={sidebarHeight} />
+      <PackDisplay setSelectedCards={setSelectedCards} setSidebarHeight={setSidebarHeight} />
     </div>
   );
 }

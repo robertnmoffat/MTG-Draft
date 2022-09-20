@@ -1,7 +1,13 @@
 
-function Card(properties){
+function Card(properties) {
+
     return (
-        <img style={{width:"223px", height:"311px"}} onClick={()=>{properties.selectCard(properties.id)}} src={properties.imageUrl} />
+        <img
+            className={properties.isSelected === "true" ? "selected-card" : "pack-card"}
+            onClick={() => { properties.selectCard(properties.id) }}
+            src={properties.imageUrl}
+            style={{width:"223px", height:"311px"}}
+        />
     );
 }
 
