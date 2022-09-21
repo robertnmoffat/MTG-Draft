@@ -11,7 +11,7 @@ class Pack {
     }
 
     static fetchPack(setPack) {
-        fetch("https://api.magicthegathering.io/v1/sets/ktk/booster")
+        fetch("https://api.magicthegathering.io/v1/sets/snc/booster")
             .then(res => res.json())
             .then(json => {
                 setPack(json.cards);

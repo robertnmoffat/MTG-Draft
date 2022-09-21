@@ -9,7 +9,11 @@ function Card(properties) {
                     properties.selectCard(properties.id)
             }}
             src={properties.imageUrl}
-            style={{ width: "223px", height: "311px" }}
+            style={{ 
+                width: "223px", 
+                height: "311px", 
+                marginTop:properties.isSelected==="true"? properties.id*35 : 0
+                }}
         />
     );
 }

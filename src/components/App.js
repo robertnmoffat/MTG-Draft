@@ -14,8 +14,14 @@ function App() {
   return (
     <div className="App">
       <Header />
-      <Sidebar selectedCards={selectedCards} height={sidebarHeight} />
-      <PackDisplay setSelectedCards={setSelectedCards} setSidebarHeight={setSidebarHeight} />
+      <Sidebar
+        selectedCards={selectedCards}
+        height={sidebarHeight}
+      />
+      <PackDisplay
+        setSelectedCards={setSelectedCards}
+        setSidebarHeight={setSidebarHeight}
+      />
     </div>
   );
 }
