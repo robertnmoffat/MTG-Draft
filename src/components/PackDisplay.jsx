@@ -1,10 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import Card from "./Card"
 import Pack from "../Pack"
+import MtgSetController from "../MtgSetController"
+import MtgSet from "./MtgSet";
 
 
 function PackDisplay(properties) {
     let [pack, setPack] = useState(Pack.getEmptyPack());
+    let [sets, setSets] = useState([]);
+    let [selectedSets, setSelectedSets] = useState(['___', '___', '___']);
+    let [picking, setPicking] = useState(false);
+    let [threeSetsPicked, setThreeSetsPicked] = useState(false);
 
     //Reference for accessing window size.
     const ref = useRef(null);
@@ -13,8 +19,8 @@ function PackDisplay(properties) {
      * If page first loaded, fetch cards from the MTG API.
      */
     useEffect(() => {
-        if (pack[0].name === "loading...") {
-            Pack.fetchPack(setPack);
+        if (pack[0].name === "loading...") {            
+            MtgSetController.fetchSets(setSets);
         }
 
         //Call reset to reference of page height when it has changed.
@@ -35,25 +41,76 @@ function PackDisplay(properties) {
             properties.setSidebarHeight(ref.current.clientHeight);
     }
 
-    function selectCard(index){
+    function selectCard(index) {
         Pack.selectCard(properties.setSelectedCards, setPack, pack, index)
     }
 
-    return (
-        <div ref={ref} id="card-space" className="body-text">
-            {pack.map((card, index) => {
-                return (
-                    <Card
-                        isSelected="false"
-                        selectCard={selectCard}
-                        key={index}
-                        id={index}
-                        imageUrl={card.imageUrl}
-                    />
-                )
-            })}
-        </div>
-    );
+    function addSet(abbr) {
+        setSelectedSets((old) => {
+            console.log(old)
+            if (old[0] === "___") {
+                old[0] = abbr;
+                return old;
+            } else if (old[1] === "___") {
+                old[1] = abbr;
+                return old;
+            } else if (old[2] === "___") {
+                old[2] = abbr;
+                setThreeSetsPicked(true);
+                Pack.fetchPack(setPack, selectedSets[0]);
+                return old;
+            } else {
+                return old;
+            }
+        });
+        setSelectedSets((old)=>[...old]);
+    }
+
+    if (picking) {
+        return (
+            <div ref={ref} id="card-space" className="body-text">
+                {pack.map((card, index) => {
+                    return (
+                        <Card
+                            name={card.name}
+                            mana={card.manaCost}
+                            text={card.text}
+                            power={card.power}
+                            toughness={card.toughness}
+                            isSelected="false"
+                            selectCard={selectCard}
+                            key={index}
+                            id={index}
+                            imageUrl={card.imageUrl}
+                        />
+                    )
+                })}
+            </div>
+        );
+    } else {
+        return (
+            <div ref={ref} id="card-space" className="body-text">
+                {threeSetsPicked? <button onClick={()=>setPicking(true)}>Done</button> : <h2>Select three sets</h2>}
+                <div id="selected-sets">
+                    <h1>{selectedSets[0]} + {selectedSets[1]} + {selectedSets[2]}</h1>
+                </div>
+                <div id="all-set-components">
+                    {sets.filter((old, index) => index < 100).map((set, index) => {
+                        return (
+                            <MtgSet
+                                key={index}
+                                name={set.name}
+                                type={set.type}
+                                releaseDate={set.releaseDate}
+                                abbr={set.code}
+                                addSet={addSet}
+                            />
+                        )
+                    })}
+                </div>
+            </div>
+        );
+    }
 }
 
 export default PackDisplay;

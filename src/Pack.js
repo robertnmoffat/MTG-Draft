@@ -10,8 +10,8 @@ class Pack {
         return emptyPack;
     }
 
-    static fetchPack(setPack) {
-        fetch("https://api.magicthegathering.io/v1/sets/snc/booster")
+    static fetchPack(setPack, set) {
+        fetch("https://api.magicthegathering.io/v1/sets/"+set+"/booster")
             .then(res => res.json())
             .then(json => {
                 setPack(json.cards);
