@@ -27,15 +27,9 @@ class Pack {
      * @param {current pack of cards} pack
      */
     static selectCard(setSelectedCards, setPack, pack, index){
-        console.log("Index:" + index);
         setSelectedCards((old) => {
             return [...old, pack[index]];
-        });
-        setPack((old) => {
-            return old.filter((card, i) => {
-                return i !== index;
-            });
-        });    
+        });  
     }
 }
 

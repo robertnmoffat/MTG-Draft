@@ -7,6 +7,8 @@ import MtgSet from "./MtgSet";
 
 function PackDisplay(properties) {
     let [pack, setPack] = useState(Pack.getEmptyPack());
+    let [packs, setPacks] = useState([[],[],[],[],[],[],[],[]]);
+    let [currentPackIndex, setCurrentPackIndex] = useState(0);
     let [sets, setSets] = useState([]);
     let [selectedSets, setSelectedSets] = useState(['___', '___', '___']);
     let [picking, setPicking] = useState(false);
@@ -42,7 +44,27 @@ function PackDisplay(properties) {
     }
 
     function selectCard(index) {
+        console.log(pack);
         Pack.selectCard(properties.setSelectedCards, setPack, pack, index)
+        console.log(pack);
+        setPacks((old)=>{
+            old[currentPackIndex] = pack.filter((card, i)=>i!=index);
+            return [...old];
+        });
+        if(currentPackIndex+1>=7){
+            setCurrentPackIndex(0);
+        }else{
+            let nextIndex = currentPackIndex+1;
+            setCurrentPackIndex(nextIndex);
+        }
+        if(packs[currentPackIndex].length===0){
+            console.log("Fetching new...")
+            setPack(Pack.getEmptyPack());
+            Pack.fetchPack(setPack, selectedSets[0]);
+        }else{
+            setPack(packs[currentPackIndex]);
+        }
+        console.log(pack);
     }
 
     function addSet(abbr) {
