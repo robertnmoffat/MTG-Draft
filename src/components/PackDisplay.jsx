@@ -6,9 +6,9 @@ import MtgSet from "./MtgSet";
 
 
 function PackDisplay(properties) {
-    let [pack, setPack] = useState(Pack.getEmptyPack());
-    let [packs, setPacks] = useState([[],[],[],[],[],[],[],[]]);
-    let [currentPackIndex, setCurrentPackIndex] = useState(0);
+    //let [pack, setPack] = useState(Pack.getEmptyPack());
+    let [packsData, setPacksData] = useState({packs: [[],[],[],[],[],[],[],[]], currentPackIndex: 0});
+    //let [currentPackIndex, setCurrentPackIndex] = useState(0);
     let [sets, setSets] = useState([]);
     let [selectedSets, setSelectedSets] = useState(['___', '___', '___']);
     let [picking, setPicking] = useState(false);
@@ -17,12 +17,19 @@ function PackDisplay(properties) {
     //Reference for accessing window size.
     const ref = useRef(null);
 
-    /**
+    /**setPack
      * If page first loaded, fetch cards from the MTG API.
      */
     useEffect(() => {
-        if (pack[0].name === "loading...") {            
+        //if (pack[0].name === "loading...") {            
+        if(packsData.packs[0].length===0){
             MtgSetController.fetchSets(setSets);
+            setPacksData((old)=>{
+                for(let i=0; i<8; i++){
+                    old.packs[i] = Pack.getEmptyPack();
+                }
+                return {...old};
+            });
         }
 
         //Call reset to reference of page height when it has changed.
@@ -44,27 +51,24 @@ function PackDisplay(properties) {
     }
 
     function selectCard(index) {
-        console.log(pack);
-        Pack.selectCard(properties.setSelectedCards, setPack, pack, index)
-        console.log(pack);
-        setPacks((old)=>{
-            old[currentPackIndex] = pack.filter((card, i)=>i!=index);
-            return [...old];
+        setPacksData((old)=>{
+            console.log("stating old:")
+            console.log(old)
+            let playerCount = 8;
+            let selectedCard = old.packs[old.currentPackIndex%playerCount][index];
+            Pack.selectCard(properties.setSelectedCards, selectedCard);
+            old.packs[old.currentPackIndex%playerCount] = old.packs[old.currentPackIndex%playerCount].filter((curCard, position)=>{
+                //return all cards except the one which was selected
+                return position!==index;
+            });
+            old.currentPackIndex++;
+            console.log("Old packsData:")
+            console.log(old)
+            if(old.packs[old.currentPackIndex%playerCount][0].name==="loading..."){
+               Pack.fetchPack(setPacksData, selectedSets[0]);
+            }
+            return {...old}
         });
-        if(currentPackIndex+1>=7){
-            setCurrentPackIndex(0);
-        }else{
-            let nextIndex = currentPackIndex+1;
-            setCurrentPackIndex(nextIndex);
-        }
-        if(packs[currentPackIndex].length===0){
-            console.log("Fetching new...")
-            setPack(Pack.getEmptyPack());
-            Pack.fetchPack(setPack, selectedSets[0]);
-        }else{
-            setPack(packs[currentPackIndex]);
-        }
-        console.log(pack);
     }
 
     function addSet(abbr) {
@@ -79,7 +83,7 @@ function PackDisplay(properties) {
             } else if (old[2] === "___") {
                 old[2] = abbr;
                 setThreeSetsPicked(true);
-                Pack.fetchPack(setPack, selectedSets[0]);
+                Pack.fetchPack(setPacksData, selectedSets[0]);
                 return old;
             } else {
                 return old;
@@ -91,7 +95,7 @@ function PackDisplay(properties) {
     if (picking) {
         return (
             <div ref={ref} id="card-space" className="body-text">
-                {pack.map((card, index) => {
+                {packsData.packs[packsData.currentPackIndex%8].map((card, index) => {
                     return (
                         <Card
                             name={card.name}

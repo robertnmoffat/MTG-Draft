@@ -10,11 +10,14 @@ class Pack {
         return emptyPack;
     }
 
-    static fetchPack(setPack, set) {
-        fetch("https://api.magicthegathering.io/v1/sets/"+set+"/booster")
+    static fetchPack(setPacksData, set) {
+        fetch("https://api.magicthegathering.io/v1/sets/" + set + "/booster")
             .then(res => res.json())
             .then(json => {
-                setPack(json.cards);
+                setPacksData((old) => {
+                    old.packs[old.currentPackIndex % 8] = json.cards;
+                    return {...old};
+                });
             }
             )
     }
@@ -26,10 +29,10 @@ class Pack {
      * @param {index of selected card in current pack} index 
      * @param {current pack of cards} pack
      */
-    static selectCard(setSelectedCards, setPack, pack, index){
+    static selectCard(setSelectedCards, card) {
         setSelectedCards((old) => {
-            return [...old, pack[index]];
-        });  
+            return [...old, card];
+        });
     }
 }
 
