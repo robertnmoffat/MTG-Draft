@@ -30,6 +30,9 @@ class Pack {
      * @param {current pack of cards} pack
      */
     static selectCard(setSelectedCards, card) {
+        if(card.name==="loading..."){
+            return;
+        }
         setSelectedCards((old) => {
             return [...old, card];
         });

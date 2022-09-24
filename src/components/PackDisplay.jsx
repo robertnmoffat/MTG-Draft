@@ -51,6 +51,10 @@ function PackDisplay(properties) {
     }
 
     function selectCard(index) {
+        if(packsData.packs[packsData.currentPackIndex%8][index].name==="loading..."){
+            return;
+        }
+
         setPacksData((old)=>{
             console.log("stating old:")
             console.log(old)
