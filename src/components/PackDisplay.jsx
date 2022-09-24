@@ -7,7 +7,7 @@ import MtgSet from "./MtgSet";
 
 function PackDisplay(properties) {
     //let [pack, setPack] = useState(Pack.getEmptyPack());
-    let [packsData, setPacksData] = useState({packs: [[],[],[],[],[],[],[],[]], currentPackIndex: 0});
+    let [packsData, setPacksData] = useState({ packs: [[], [], [], [], [], [], [], []], currentPackIndex: 0 });
     //let [currentPackIndex, setCurrentPackIndex] = useState(0);
     let [sets, setSets] = useState([]);
     let [selectedSets, setSelectedSets] = useState(['___', '___', '___']);
@@ -22,13 +22,13 @@ function PackDisplay(properties) {
      */
     useEffect(() => {
         //if (pack[0].name === "loading...") {            
-        if(packsData.packs[0].length===0){
+        if (packsData.packs[0].length === 0) {
             MtgSetController.fetchSets(setSets);
-            setPacksData((old)=>{
-                for(let i=0; i<8; i++){
+            setPacksData((old) => {
+                for (let i = 0; i < 8; i++) {
                     old.packs[i] = Pack.getEmptyPack();
                 }
-                return {...old};
+                return { ...old };
             });
         }
 
@@ -51,33 +51,41 @@ function PackDisplay(properties) {
     }
 
     function selectCard(index) {
-        if(packsData.packs[packsData.currentPackIndex%8][index].name==="loading..."){
+        if (packsData.packs[packsData.currentPackIndex % 8].length === 0 || packsData.packs[packsData.currentPackIndex % 8][index].name === "loading...") {
             return;
         }
 
-        setPacksData((old)=>{
-            console.log("stating old:")
-            console.log(old)
+        setPacksData((old) => {
             let playerCount = 8;
-            let selectedCard = old.packs[old.currentPackIndex%playerCount][index];
+            let selectedCard = old.packs[old.currentPackIndex % playerCount][index];
             Pack.selectCard(properties.setSelectedCards, selectedCard);
-            old.packs[old.currentPackIndex%playerCount] = old.packs[old.currentPackIndex%playerCount].filter((curCard, position)=>{
-                //return all cards except the one which was selected
-                return position!==index;
-            });
-            old.currentPackIndex++;
-            console.log("Old packsData:")
-            console.log(old)
-            if(old.packs[old.currentPackIndex%playerCount][0].name==="loading..."){
-               Pack.fetchPack(setPacksData, selectedSets[0]);
+            old.packs[old.currentPackIndex % playerCount].splice(index, 1);
+
+            for (let i = 0; i < 8; i++) {
+                if (i !== (old.currentPackIndex % playerCount) && old.packs[i][0].name !== "loading...") {
+                    old.packs[i].splice(0, 1);
+                    if (old.packs[i].length === 0) {
+                        old.currentPackIndex = -1;
+                        for (let i = 0; i < 8; i++) {
+                            old.packs[i] = Pack.getEmptyPack();
+                        }
+                        break;
+                    }
+                }
             }
-            return {...old}
+
+
+            old.currentPackIndex++;
+
+            if (old.packs[old.currentPackIndex % playerCount].length === 0 || old.packs[old.currentPackIndex % playerCount][0].name === "loading...") {
+                Pack.fetchPack(setPacksData, selectedSets[0], (old.currentPackIndex % playerCount));
+            }
+            return { ...old }
         });
     }
 
     function addSet(abbr) {
         setSelectedSets((old) => {
-            console.log(old)
             if (old[0] === "___") {
                 old[0] = abbr;
                 return old;
@@ -93,13 +101,13 @@ function PackDisplay(properties) {
                 return old;
             }
         });
-        setSelectedSets((old)=>[...old]);
+        setSelectedSets((old) => [...old]);
     }
 
     if (picking) {
         return (
             <div ref={ref} id="card-space" className="body-text">
-                {packsData.packs[packsData.currentPackIndex%8].map((card, index) => {
+                {packsData.packs[packsData.currentPackIndex % 8].map((card, index) => {
                     return (
                         <Card
                             name={card.name}
@@ -120,7 +128,7 @@ function PackDisplay(properties) {
     } else {
         return (
             <div ref={ref} id="card-space" className="body-text">
-                {threeSetsPicked? <button onClick={()=>setPicking(true)}>Done</button> : <h2>Select three sets</h2>}
+                {threeSetsPicked ? <button onClick={() => setPicking(true)}>Done</button> : <h2>Select three sets</h2>}
                 <div id="selected-sets">
                     <h1>{selectedSets[0]} + {selectedSets[1]} + {selectedSets[2]}</h1>
                 </div>

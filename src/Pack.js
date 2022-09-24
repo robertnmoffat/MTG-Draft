@@ -22,6 +22,22 @@ class Pack {
             )
     }
 
+    static fetchPack(setPacksData, set, amountToRemove) {
+        const r = amountToRemove===undefined? 0 : amountToRemove;
+        fetch("https://api.magicthegathering.io/v1/sets/" + set + "/booster")
+            .then(res => res.json())
+            .then(json => {
+                setPacksData((old) => {
+                    old.packs[old.currentPackIndex % 8] = (json.cards.filter((card, index)=>{
+                        return index>=r;
+                    }))
+                     //json.cards;
+                    return {...old};
+                });
+            }
+            )
+    }
+
     /**
      * Removes a card from the pack array and adds it to the selectedCards array.
      * @param {function to set currently selected cards} setSelectedCards 
@@ -30,7 +46,7 @@ class Pack {
      * @param {current pack of cards} pack
      */
     static selectCard(setSelectedCards, card) {
-        if(card.name==="loading..."){
+        if(card===undefined || card.name==="loading..."){
             return;
         }
         setSelectedCards((old) => {
