@@ -10,9 +10,9 @@ function PackDisplay(properties) {
     let [packsData, setPacksData] = useState({ packs: [[], [], [], [], [], [], [], []], currentPackIndex: 0 });
     //let [currentPackIndex, setCurrentPackIndex] = useState(0);
     let [sets, setSets] = useState([]);
-    let [selectedSets, setSelectedSets] = useState(['___', '___', '___']);
-    let [picking, setPicking] = useState(false);
-    let [threeSetsPicked, setThreeSetsPicked] = useState(false);
+    let [selectedSets, setSelectedSets] = useState({ names: ['___', '___', '___'], finishedPicking: false, currentSetIndex: 0 });
+    let [pickingCards, setPickingCards] = useState(false);
+    //let [threeSetsPicked, setThreeSetsPicked] = useState(false);
 
     //Reference for accessing window size.
     const ref = useRef(null);
@@ -55,56 +55,81 @@ function PackDisplay(properties) {
             return;
         }
 
+        let currentSet = selectedSets.currentSetIndex;
         setPacksData((old) => {
+
             let playerCount = 8;
             let selectedCard = old.packs[old.currentPackIndex % playerCount][index];
             Pack.selectCard(properties.setSelectedCards, selectedCard);
             old.packs[old.currentPackIndex % playerCount].splice(index, 1);
+            console.log('Removed card.')
 
-            for (let i = 0; i < 8; i++) {
-                if (i !== (old.currentPackIndex % playerCount) && old.packs[i][0].name !== "loading...") {
-                    old.packs[i].splice(0, 1);
-                    if (old.packs[i].length === 0) {
-                        old.currentPackIndex = -1;
-                        for (let i = 0; i < 8; i++) {
-                            old.packs[i] = Pack.getEmptyPack();
+            //If player pack empty after pick
+            if (old.packs[old.currentPackIndex % playerCount].length === 0) {
+                console.log('Pack size zero triggered.')
+                old.currentPackIndex = -1;
+                for (let i = 0; i < 8; i++) {
+                    old.packs[i] = Pack.getEmptyPack();
+                }
+                currentSet++;
+            } else {
+                for (let i = 0; i < 8; i++) {
+                    if (i !== (old.currentPackIndex % playerCount) && old.packs[i][0].name !== "loading...") {
+                        old.packs[i].splice(0, 1);
+                        console.log('   Removed card from pack ' + i)
+                        //If current computer pack empty after pick
+                        if (old.packs[i].length === 0) {
+                            console.log('Pack size zero triggered.')
+                            old.currentPackIndex = -1;
+                            for (let i = 0; i < 8; i++) {
+                                old.packs[i] = Pack.getEmptyPack();
+                            }
+                            currentSet++;
+                            break;
                         }
-                        break;
                     }
                 }
             }
 
-
             old.currentPackIndex++;
+            console.log('Pack index incremented.')
 
             if (old.packs[old.currentPackIndex % playerCount].length === 0 || old.packs[old.currentPackIndex % playerCount][0].name === "loading...") {
-                Pack.fetchPack(setPacksData, selectedSets[0], (old.currentPackIndex % playerCount));
+                console.log('Fetching new pack...')
+                Pack.fetchPack(setPacksData, selectedSets.names[currentSet], (old.currentPackIndex % playerCount));
             }
+            setSelectedSets((old) => {
+                old.currentSetIndex = currentSet;
+                return { ...old };
+            });
             return { ...old }
         });
     }
 
     function addSet(abbr) {
         setSelectedSets((old) => {
-            if (old[0] === "___") {
-                old[0] = abbr;
+            if (old.names[0] === "___") {
+                old.names[0] = abbr;
                 return old;
-            } else if (old[1] === "___") {
-                old[1] = abbr;
+            } else if (old.names[1] === "___") {
+                old.names[1] = abbr;
                 return old;
-            } else if (old[2] === "___") {
-                old[2] = abbr;
-                setThreeSetsPicked(true);
-                Pack.fetchPack(setPacksData, selectedSets[0]);
+            } else if (old.names[2] === "___") {
+                old.names[2] = abbr;
+                setSelectedSets((old) => {
+                    old.finishedPicking = true;
+                    return { ...old };
+                });
+                Pack.fetchPack(setPacksData, selectedSets.names[0]);
                 return old;
             } else {
                 return old;
             }
         });
-        setSelectedSets((old) => [...old]);
+        setSelectedSets((old) => { return { ...old } });
     }
 
-    if (picking) {
+    if (pickingCards) {
         return (
             <div ref={ref} id="card-space" className="body-text">
                 {packsData.packs[packsData.currentPackIndex % 8].map((card, index) => {
@@ -128,9 +153,9 @@ function PackDisplay(properties) {
     } else {
         return (
             <div ref={ref} id="card-space" className="body-text">
-                {threeSetsPicked ? <button onClick={() => setPicking(true)}>Done</button> : <h2>Select three sets</h2>}
+                {selectedSets.finishedPicking ? <button onClick={() => setPickingCards(true)}>Done</button> : <h2>Select three sets</h2>}
                 <div id="selected-sets">
-                    <h1>{selectedSets[0]} + {selectedSets[1]} + {selectedSets[2]}</h1>
+                    <h1>{selectedSets.names[0]} + {selectedSets.names[1]} + {selectedSets.names[2]}</h1>
                 </div>
                 <div id="all-set-components">
                     {sets.filter((old, index) => index < 100).map((set, index) => {
