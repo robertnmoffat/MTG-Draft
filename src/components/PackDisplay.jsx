@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import Card from "./Card"
 import Pack from "../Pack"
 import MtgSetController from "../MtgSetController"
-import MtgSet from "./MtgSet";
+import SetDisplay from "./SetDisplay";
+
 
 
 function PackDisplay(properties) {
@@ -152,28 +153,21 @@ function PackDisplay(properties) {
         );
     } else {
         return (
-            <div ref={ref} id="card-space" className="body-text">
-                {selectedSets.finishedPicking ? <button onClick={() => setPickingCards(true)}>Done</button> : <h2>Select three sets</h2>}
-                <div id="selected-sets">
-                    <h1>{selectedSets.names[0]} + {selectedSets.names[1]} + {selectedSets.names[2]}</h1>
-                </div>
-                <div id="all-set-components">
-                    {sets.filter((old, index) => index < 100).map((set, index) => {
-                        return (
-                            <MtgSet
-                                key={index}
-                                name={set.name}
-                                type={set.type}
-                                releaseDate={set.releaseDate}
-                                abbr={set.code}
-                                addSet={addSet}
-                            />
-                        )
-                    })}
-                </div>
-            </div>
+            <SetDisplay 
+                finishedPicking={selectedSets.finishedPicking}
+                setPickingCards={setPickingCards}
+                names={selectedSets.names}
+                sets={sets}                
+                addSet={addSet}
+                setSidebarHeight={properties.setSidebarHeight}
+            />
         );
     }
 }
 
 export default PackDisplay;
+
+//selectedSets.finishedPicking      finishedPicking
+//setPickingCards()                 setPickingCards
+//selectedSets.names[0] [1] [2]     names
+//sets                              sets
