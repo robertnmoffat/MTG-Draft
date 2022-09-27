@@ -5,24 +5,25 @@ import MtgSetController from "../MtgSetController"
 import SetDisplay from "./SetDisplay";
 
 
-
+/**
+ * Component to display sets for the user to pick and then to display cards from packs for drafting.
+ * @param {setSelectedCards: Function to add card to players picked cards, setSidebarHeight: Function for resizing height of sidebar} properties 
+ * @returns 
+ */
 function PackDisplay(properties) {
-    //let [pack, setPack] = useState(Pack.getEmptyPack());
     let [packsData, setPacksData] = useState({ packs: [[], [], [], [], [], [], [], []], currentPackIndex: 0 });
-    //let [currentPackIndex, setCurrentPackIndex] = useState(0);
+    let [coloursPicked, setColoursPicked] = useState({ R: 0, G: 0, U: 0, B: 0, W: 0 });
     let [sets, setSets] = useState([]);
     let [selectedSets, setSelectedSets] = useState({ names: ['___', '___', '___'], finishedPicking: false, currentSetIndex: 0 });
-    let [pickingCards, setPickingCards] = useState(false);
-    //let [threeSetsPicked, setThreeSetsPicked] = useState(false);
+    let [phase, setPhase] = useState(0);
 
     //Reference for accessing window size.
     const ref = useRef(null);
 
-    /**setPack
+    /**
      * If page first loaded, fetch cards from the MTG API.
      */
     useEffect(() => {
-        //if (pack[0].name === "loading...") {            
         if (packsData.packs[0].length === 0) {
             MtgSetController.fetchSets(setSets);
             setPacksData((old) => {
@@ -45,12 +46,21 @@ function PackDisplay(properties) {
         handleResize();
     });
 
-    //Reset the reference to page height.
+    /**
+     * Reset the reference to page height.
+     */
     function handleResize() {
         if (ref.current != null)
             properties.setSidebarHeight(ref.current.clientHeight);
     }
 
+    /**
+     * Copies the card at the given index of the current pack into the selected cards array.
+     * The card is then removed from the current pack.
+     * Updating of computer player packs is done and then checks for empty finished packs.
+     * @param {Index of selected card within current pack} index 
+     * @returns 
+     */
     function selectCard(index) {
         if (packsData.packs[packsData.currentPackIndex % 8].length === 0 || packsData.packs[packsData.currentPackIndex % 8][index].name === "loading...") {
             return;
@@ -58,8 +68,42 @@ function PackDisplay(properties) {
 
         let currentSet = selectedSets.currentSetIndex;
         setPacksData((old) => {
-
             let playerCount = 8;
+
+            if (old.packs[old.currentPackIndex % playerCount][index].colors != undefined &&
+                old.packs[old.currentPackIndex % playerCount][index].colors != NaN) {
+                console.log("color array")
+                console.log(old.packs[old.currentPackIndex % playerCount][index].colors)
+                console.log(old.packs[old.currentPackIndex % playerCount][index].colors.length)
+                let colors = [];
+                for (let i = 0; i < old.packs[old.currentPackIndex % playerCount][index].colors.length; i++) {
+                    console.log(old.packs[old.currentPackIndex % playerCount][index].colors[i])
+                    colors.push(old.packs[old.currentPackIndex % playerCount][index].colors[i]);
+                }
+                setColoursPicked((oldC) => {
+                    for (let i = 0; i < colors.length; i++) {
+                        switch (colors[i]) {
+                            case 'W':
+                                oldC.W = oldC.W + 1;
+                                break;
+                            case 'B':
+                                oldC.B = oldC.B + 1;
+                                break;
+                            case 'U':
+                                oldC.U = oldC.U + 1;
+                                break;
+                            case 'R':
+                                oldC.R = oldC.R + 1;
+                                break;
+                            case 'G':
+                                oldC.G = oldC.G + 1;
+                                break;
+                        }
+                    }
+                    return { ...oldC }
+                })
+            }
+
             let selectedCard = old.packs[old.currentPackIndex % playerCount][index];
             Pack.selectCard(properties.setSelectedCards, selectedCard);
             old.packs[old.currentPackIndex % playerCount].splice(index, 1);
@@ -73,6 +117,10 @@ function PackDisplay(properties) {
                     old.packs[i] = Pack.getEmptyPack();
                 }
                 currentSet++;
+                if (currentSet > 2) {
+                    setPhase(2);
+                    return;
+                }
             } else {
                 for (let i = 0; i < 8; i++) {
                     if (i !== (old.currentPackIndex % playerCount) && old.packs[i][0].name !== "loading...") {
@@ -86,6 +134,10 @@ function PackDisplay(properties) {
                                 old.packs[i] = Pack.getEmptyPack();
                             }
                             currentSet++;
+                            if (currentSet > 2) {
+                                setPhase(2);
+                                return;
+                            }
                             break;
                         }
                     }
@@ -130,44 +182,49 @@ function PackDisplay(properties) {
         setSelectedSets((old) => { return { ...old } });
     }
 
-    if (pickingCards) {
-        return (
-            <div ref={ref} id="card-space" className="body-text">
-                {packsData.packs[packsData.currentPackIndex % 8].map((card, index) => {
-                    return (
-                        <Card
-                            name={card.name}
-                            mana={card.manaCost}
-                            text={card.text}
-                            power={card.power}
-                            toughness={card.toughness}
-                            isSelected="false"
-                            selectCard={selectCard}
-                            key={index}
-                            id={index}
-                            imageUrl={card.imageUrl}
-                        />
-                    )
-                })}
+    switch (phase) {
+        case 0:
+            return (
+                <SetDisplay
+                    finishedPicking={selectedSets.finishedPicking}
+                    setPhase={setPhase}
+                    names={selectedSets.names}
+                    sets={sets}
+                    addSet={addSet}
+                    setSidebarHeight={properties.setSidebarHeight}
+                />
+            );
+
+        case 1:
+            return (
+                <div ref={ref} id="card-space" className="body-text">
+                    <div style={{ borderBottom: "solid" }}>
+                        <p>White:{coloursPicked.W} Blue:{coloursPicked.U} Black:{coloursPicked.B} Red:{coloursPicked.R} Green:{coloursPicked.G} </p>
+                    </div>
+                    {packsData.packs[packsData.currentPackIndex % 8].map((card, index) => {
+                        return (
+                            <Card
+                                name={card.name}
+                                mana={card.manaCost}
+                                text={card.text}
+                                power={card.power}
+                                toughness={card.toughness}
+                                isSelected="false"
+                                selectCard={selectCard}
+                                key={index}
+                                id={index}
+                                imageUrl={card.imageUrl}
+                            />
+                        )
+                    })}
+                </div>
+            );
+
+        case 2:
+            return <div id="card-space" className="body-text">
+                <h2>Draft Complete</h2>
             </div>
-        );
-    } else {
-        return (
-            <SetDisplay 
-                finishedPicking={selectedSets.finishedPicking}
-                setPickingCards={setPickingCards}
-                names={selectedSets.names}
-                sets={sets}                
-                addSet={addSet}
-                setSidebarHeight={properties.setSidebarHeight}
-            />
-        );
     }
 }
 
 export default PackDisplay;
-
-//selectedSets.finishedPicking      finishedPicking
-//setPickingCards()                 setPickingCards
-//selectedSets.names[0] [1] [2]     names
-//sets                              sets

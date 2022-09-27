@@ -1,11 +1,24 @@
 import { useState } from "react";
+import Card from "./components/Card";
 
 class Pack {
+
+    static getFillerCard(){
+        return {
+            
+            name:"Filler Card",
+            text:"Card not returned by API."
+        }
+    }
+
     static getEmptyPack() {
         let emptyPack = [];
         //Create empty pack data while loading data from API.
         for (let i = 0; i < 14; i++) {
-            emptyPack[i] = { name: "loading...", imageUrl: "./mtg-back.jpg" };
+            emptyPack[i] = { 
+                name: "loading...", 
+                imageUrl: "./mtg-back.jpg" 
+            };
         }
         return emptyPack;
     }
@@ -15,6 +28,9 @@ class Pack {
             .then(res => res.json())
             .then(json => {
                 setPacksData((old) => {
+                    for(let i=json.cards.length; i<14; i++){
+                        json.cards.push(this.getFillerCard());
+                    }
                     old.packs[old.currentPackIndex % 8] = json.cards;
                     return {...old};
                 });
@@ -28,6 +44,9 @@ class Pack {
             .then(res => res.json())
             .then(json => {
                 setPacksData((old) => {
+                    for(let i=json.cards.length; i<14; i++){
+                        json.cards.push(this.getFillerCard());
+                    }
                     old.packs[old.currentPackIndex % 8] = (json.cards.filter((card, index)=>{
                         return index>=r;
                     }))

@@ -2,8 +2,9 @@ import Card from "./Card";
 
 function Sidebar(properties) {
     return (
-        <div style={{ height: properties.height }} className="sidebar container ">
+        <div style={{ height: properties.height }} className="sidebar container">
             <div className="border-bottom"><h2>Deck</h2></div>
+            <p>{properties.selectedCards.length}/42</p>
             {properties.selectedCards.map((card, index) => {
                 return (
                     <Card
