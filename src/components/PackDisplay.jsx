@@ -14,7 +14,7 @@ const PLAYER_COUNT = 8;
  */
 function PackDisplay(properties) {
     let [packsData, setPacksData] = useState({ packs: [[], [], [], [], [], [], [], []], currentPackIndex: 0 });
-    let [coloursPicked, setColoursPicked] = useState({ R: 0, G: 0, U: 0, B: 0, W: 0 });
+    let [pickStats, setPickStats] = useState({ R: 0, G: 0, U: 0, B: 0, W: 0, types: {} });
     let [sets, setSets] = useState([]);
     let [selectedSets, setSelectedSets] = useState({ names: ['___', '___', '___'], finishedPicking: false, currentSetIndex: 0 });
     let [phase, setPhase] = useState(0);
@@ -74,34 +74,33 @@ function PackDisplay(properties) {
             const packIndex = old.currentPackIndex % PLAYER_COUNT;
 
             //Makes sure that the card has a colour that can be referenced.
+            let colors;
             if (old.packs[packIndex][cardIndex].colors != undefined &&
                 old.packs[packIndex][cardIndex].colors != NaN) {
-                let colors = old.packs[packIndex][cardIndex].colors;
+                colors = old.packs[packIndex][cardIndex].colors;
+            }
+            let types = old.packs[packIndex][cardIndex].types;
 
-                //Iterate through each of the card's colours and increment that colour count by one.
-                setColoursPicked((oldC) => {
+            //Iterate through each of the card's colours and increment that colour count by one.
+            setPickStats((oldC) => {
+                if (colors) {
                     for (let i = 0; i < colors.length; i++) {
-                        switch (colors[i]) {
-                            case 'W':
-                                oldC.W = oldC.W + 1;
-                                break;
-                            case 'B':
-                                oldC.B = oldC.B + 1;
-                                break;
-                            case 'U':
-                                oldC.U = oldC.U + 1;
-                                break;
-                            case 'R':
-                                oldC.R = oldC.R + 1;
-                                break;
-                            case 'G':
-                                oldC.G = oldC.G + 1;
-                                break;
+                        oldC[colors[i]] = oldC[colors[i]] + 1;
+                    }
+                }
+                if (types) {
+                    for (let i = 0; i < types.length; i++) {
+                        if (oldC.types[types[i]] === undefined) {
+                            oldC.types[types[i]] = 1;
+                        } else {
+                            oldC.types[types[i]] = oldC.types[types[i]] + 1;
                         }
                     }
-                    return { ...oldC }
-                })
-            }
+                }
+
+                return { ...oldC }
+            })
+
 
             let selectedCard = old.packs[packIndex][cardIndex];
             Pack.selectCard(properties.setSelectedCards, selectedCard);
@@ -198,7 +197,8 @@ function PackDisplay(properties) {
             return (
                 <div ref={ref} id="card-space" className="body-text">
                     <div style={{ borderBottom: "solid" }}>
-                        <p>White:{coloursPicked.W} Blue:{coloursPicked.U} Black:{coloursPicked.B} Red:{coloursPicked.R} Green:{coloursPicked.G} </p>
+                        <p>{JSON.stringify(pickStats.types, null, 1).replace('{', "").replace(/"/g, "").replace("\"", "").replace("}", "")}</p>
+                        <p>White:{pickStats.W} Blue:{pickStats.U} Black:{pickStats.B} Red:{pickStats.R} Green:{pickStats.G} </p>
                     </div>
                     {packsData.packs[packsData.currentPackIndex % PLAYER_COUNT].map((card, index) => {
                         return (
@@ -222,6 +222,8 @@ function PackDisplay(properties) {
         case 2:
             return <div id="card-space" className="body-text">
                 <h2>Draft Complete</h2>
+                <p className="stat-text">{JSON.stringify(pickStats.types, null, 1).replace('{', "").replace(/"/g, "").replace("\"", "").replace("}", "")}</p>
+                <p className="stat-text">White:{pickStats.W} {Math.round((pickStats.W/42)*100)}% Blue:{pickStats.U} {Math.round((pickStats.U/42)*100)}% Black:{pickStats.B} {Math.round((pickStats.B/42)*100)}% Red:{pickStats.R} {Math.round((pickStats.R/42)*100)}% Green:{pickStats.G} {Math.round((pickStats.G/42)*100)}%</p>
             </div>
     }
 }

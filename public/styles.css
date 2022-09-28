@@ -87,3 +87,7 @@ header {
     position: absolute;
     margin-left: -45%;
 }
+
+.stat-text{
+    font-size: 40px;
+}
