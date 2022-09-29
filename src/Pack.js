@@ -10,10 +10,10 @@ class Pack {
      * Creates a filler card to be used when API fails to return a full pack of cards.
      * @returns Object representing a blank card
      */
-    static getFillerCard(){
+    static getFillerCard() {
         return {
-            name:"Filler Card",
-            text:"Card not returned by API."
+            name: "Filler Card",
+            text: "Card not returned by API."
         }
     }
 
@@ -25,9 +25,10 @@ class Pack {
         let emptyPack = [];
         //Create empty pack data while loading data from API.
         for (let i = 0; i < 14; i++) {
-            emptyPack[i] = { 
-                name: "loading...", 
-                imageUrl: "./mtg-back.jpg" };
+            emptyPack[i] = {
+                name: "loading...",
+                imageUrl: "./mtg-back.jpg"
+            };
         }
         return emptyPack;
     }
@@ -42,14 +43,61 @@ class Pack {
             .then(res => res.json())
             .then(json => {
                 setPacksData((old) => {
-                    for(let i=json.cards.length; i<14; i++){
+                    for (let i = json.cards.length; i < 14; i++) {
                         json.cards.push(this.getFillerCard());
                     }
                     old.packs[old.currentPackIndex % 8] = json.cards;
-                    return {...old};
+                    return { ...old };
                 });
             }
             )
+    }
+
+    /**
+     * Generates packs through individual API calls to bypass patchy coverage in their pack generation.
+     * @param {*} setPacksData 
+     * @param {*} set 
+     * @param {*} amountToRemove 
+     */
+    static manuallyFetchPack(setPacksData, set, amountToRemove) {
+        const r = amountToRemove === undefined ? 0 : amountToRemove;
+        let cards = [];
+        let isMythic = Math.round(Math.random() * 7.4) === 1 ? true : false;
+        fetch(isMythic ? "https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=mythic&pageSize=1&random=true" : "https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=rare&pageSize=1&random=true")
+            .then(res => res.json())
+            .then(res => {
+                console.log('rare')
+                console.log(res)
+                cards = [res.cards[0]]
+            }).then(res => {
+                fetch("https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=uncommon&pageSize=3&random=true")
+                    .then(res => res.json())
+                    .then(
+                        res => {
+                            console.log('uncommon')
+                            console.log(res)
+                            cards = [...cards, ...res.cards]
+                        })
+                    .then(res => {
+                        fetch("https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=common&pageSize=10&random=true")
+                            .then(res => res.json())
+                            .then(
+                                res => {
+                                    console.log('common')
+                                    console.log(res)
+                                    cards = [...cards, ...res.cards]
+                                    console.log(cards)
+                                })
+                            .then(res => {
+                                setPacksData((old) => {
+                                    old.packs[old.currentPackIndex % 8] = (cards.filter((card, index) => {
+                                        return index >= r;
+                                    }))
+                                    return { ...old };
+                                })
+                            })
+                    })
+            })
     }
 
     /**
@@ -59,18 +107,18 @@ class Pack {
      * @param {Amount of cards to remove from the pack before being copied} amountToRemove 
      */
     static fetchPack(setPacksData, set, amountToRemove) {
-        const r = amountToRemove===undefined? 0 : amountToRemove;
+        const r = amountToRemove === undefined ? 0 : amountToRemove;
         fetch("https://api.magicthegathering.io/v1/sets/" + set + "/booster")
             .then(res => res.json())
             .then(json => {
                 setPacksData((old) => {
-                    for(let i=json.cards.length; i<14; i++){
+                    for (let i = json.cards.length; i < 14; i++) {
                         json.cards.push(this.getFillerCard());
                     }
-                    old.packs[old.currentPackIndex % 8] = (json.cards.filter((card, index)=>{
-                        return index>=r;
+                    old.packs[old.currentPackIndex % 8] = (json.cards.filter((card, index) => {
+                        return index >= r;
                     }))
-                    return {...old};
+                    return { ...old };
                 });
             }
             )
@@ -84,7 +132,7 @@ class Pack {
      * @param {current pack of cards} pack
      */
     static selectCard(setSelectedCards, card) {
-        if(card===undefined || card.name==="loading..."){
+        if (card === undefined || card.name === "loading...") {
             return;
         }
         setSelectedCards((old) => {

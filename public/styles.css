@@ -41,6 +41,7 @@ html, body {
     border-radius: 5%;
     font-size: 15px;
     border-style: solid;
+    overflow: hidden;
 }
 
 header {

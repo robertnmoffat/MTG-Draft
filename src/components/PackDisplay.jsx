@@ -136,7 +136,8 @@ function PackDisplay(properties) {
 
             //If current pack is empty, load a new pack
             if (old.packs[nextPackIndex].length === 0 || old.packs[nextPackIndex][0].name === "loading...") {
-                Pack.fetchPack(setPacksData, selectedSets.names[currentSet], (nextPackIndex));
+                //Pack.fetchPack(setPacksData, selectedSets.names[currentSet], (nextPackIndex));
+                Pack.manuallyFetchPack(setPacksData, selectedSets.names[currentSet], (nextPackIndex));
             }
             setSelectedSets((old) => {
                 old.currentSetIndex = currentSet;
@@ -165,7 +166,7 @@ function PackDisplay(properties) {
                     old.finishedPicking = true;
                     return { ...old };
                 });
-                Pack.fetchPack(setPacksData, selectedSets.names[0]);
+                Pack.manuallyFetchPack(setPacksData, selectedSets.names[0]);
                 return old;
             } else {
                 return old;

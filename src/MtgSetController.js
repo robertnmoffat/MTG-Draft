@@ -5,7 +5,7 @@ class MtgSet{
         fetch("https://api.magicthegathering.io/v1/sets")
             .then(res => res.json())
             .then(json => json.sets.filter((old)=>{
-                return old.type==="expansion"||old.type==="core";
+                return (old.type==="expansion"||old.type==="core")&&old.code!=="BRO";
             }))
             .then(json=>{
                 return json.sort((a,b)=>{
