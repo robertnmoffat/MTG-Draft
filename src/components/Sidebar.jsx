@@ -6,11 +6,16 @@ function Sidebar(properties) {
             <div className="border-bottom"><h2>Deck</h2></div>
             <p>{properties.selectedCards.length}/42</p>
             {properties.selectedCards.map((card, index) => {
-                return (
+                return (                    
                     <Card
-                        isSelected="true" 
-                        key={index} 
-                        id={index} 
+                        name={card.name}
+                        mana={card.manaCost}
+                        text={card.text}
+                        power={card.power}
+                        toughness={card.toughness}
+                        isSelected="true"
+                        key={index}
+                        id={index}
                         imageUrl={card.imageUrl}
                     />
                 );

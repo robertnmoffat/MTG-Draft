@@ -40,6 +40,7 @@ html, body {
     background-color: #533483;
     border-radius: 5%;
     font-size: 15px;
+    border-style: solid;
 }
 
 header {
@@ -69,7 +70,7 @@ header {
 
 .sidebar div {
     padding: 8px;
-    font-size: 24px;
+    font-size: 18px;
     display: block;
 }
 
