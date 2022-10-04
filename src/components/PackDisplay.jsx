@@ -3,6 +3,7 @@ import Card from "./Card"
 import Pack from "../Pack"
 import MtgSetController from "../MtgSetController"
 import SetDisplay from "./SetDisplay";
+import { PieChart } from "react-minimal-pie-chart";
 
 
 const PLAYER_COUNT = 8;
@@ -14,7 +15,7 @@ const PLAYER_COUNT = 8;
  */
 function PackDisplay(properties) {
     let [packsData, setPacksData] = useState({ packs: [[], [], [], [], [], [], [], []], currentPackIndex: 0 });
-    let [pickStats, setPickStats] = useState({ R: 0, G: 0, U: 0, B: 0, W: 0, types: {} });
+    let [pickStats, setPickStats] = useState({ R: 0, G: 0, U: 0, B: 0, W: 0, types: { Creature: 0, Artifact: 0, Instant: 0, Sorcery: 0, Land: 0, Planeswalker: 0, Enchantment: 0 } });
     let [sets, setSets] = useState([]);
     let [selectedSets, setSelectedSets] = useState({ names: ['___', '___', '___'], finishedPicking: false, currentSetIndex: 0 });
     let [phase, setPhase] = useState(0);
@@ -195,6 +196,7 @@ function PackDisplay(properties) {
             );
 
         case 1:
+            console.log(pickStats.types)
             return (
                 <div ref={ref} id="card-space" className="body-text">
                     <div style={{ borderBottom: "solid" }}>
@@ -222,9 +224,33 @@ function PackDisplay(properties) {
 
         case 2:
             return <div id="card-space" className="body-text">
-                <h2>Draft Complete</h2>
+                <h2>Draft Complete</h2>                
+                <p className="stat-text">White:{pickStats.W} {Math.round((pickStats.W / 42) * 100)}% Blue:{pickStats.U} {Math.round((pickStats.U / 42) * 100)}% Black:{pickStats.B} {Math.round((pickStats.B / 42) * 100)}% Red:{pickStats.R} {Math.round((pickStats.R / 42) * 100)}% Green:{pickStats.G} {Math.round((pickStats.G / 42) * 100)}%</p>
+                <div id="pie-chart">
+                    <PieChart
+                        labelStyle={{ fontSize: '35%' }}
+                        label={({ dataEntry }) => {
+                            let percent = Math.round(dataEntry.percentage);
+                            if (percent != 0)
+                                if (percent >= 15)
+                                    return '' + dataEntry.title + '\n' + percent + '%'
+                                else
+                                    return `${percent} %`
+                            else
+                                return '';
+                        }}
+                        data={[
+                            { title: 'Creature', value: pickStats.types.Creature, color: "#533483" },
+                            { title: 'Instant', value: pickStats.types.Instant, color: '#E94560' },
+                            { title: 'Sorcery', value: pickStats.types.Sorcery, color: '#9E3D72' },
+                            { title: 'Artifact', value: pickStats.types.Artifact, color: '#6E44AC' },
+                            { title: 'Planeswalker', value: pickStats.types.Planeswalker, color: '#FF5B7E' },
+                            { title: 'Land', value: pickStats.types.Land, color: '#79397B' },
+                            { title: 'Enchantment', value: pickStats.types.Enchantment, color: '#723145' }
+                        ]}
+                    />
+                </div>
                 <p className="stat-text">{JSON.stringify(pickStats.types, null, 1).replace('{', "").replace(/"/g, "").replace("\"", "").replace("}", "")}</p>
-                <p className="stat-text">White:{pickStats.W} {Math.round((pickStats.W/42)*100)}% Blue:{pickStats.U} {Math.round((pickStats.U/42)*100)}% Black:{pickStats.B} {Math.round((pickStats.B/42)*100)}% Red:{pickStats.R} {Math.round((pickStats.R/42)*100)}% Green:{pickStats.G} {Math.round((pickStats.G/42)*100)}%</p>
             </div>
     }
 }

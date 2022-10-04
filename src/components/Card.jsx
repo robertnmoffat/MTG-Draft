@@ -1,6 +1,7 @@
 
 function Card(properties) {
 
+    //If no image url was supplied by the API, use a component displaying card information in html instead.
     if (properties.imageUrl === undefined) {
         return (
             <div

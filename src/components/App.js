@@ -1,11 +1,7 @@
 import { useState } from "react";
-import { useRef } from "react";
 import Header from "./Header"
 import Sidebar from "./Sidebar"
 import PackDisplay from "./PackDisplay"
-import { useEffect } from "react";
-
-let num = 0;
 
 function App() {
   //Height of sidebar. To be adjusted as cards are selected.
