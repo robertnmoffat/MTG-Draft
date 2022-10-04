@@ -8,13 +8,14 @@
 }
 
 #mtg-set {
-    color: #533483;
+    color: #9374C3;
     border-style: ridge;
     border-color: #0F3460;
     display: inline-table;
     width: 200px;
-    height: 200px;
+    height: 300px;
     text-align: center;
+    padding: 20px;
 }
 
 #mtg-set h3 {
@@ -75,6 +76,16 @@
 
 .stat-text {
     font-size: 40px;
+}
+
+button {
+    border-radius:20%;
+    background-color: #533483;
+    border-width: 3px;
+    padding-right: 10px;
+    padding-left: 10px;
+    color:#9374C3;
+    font-size: 25px;
 }
 
 html,

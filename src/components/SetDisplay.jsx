@@ -22,7 +22,7 @@ function SetDisplay(properties) {
 
 
     return <div  ref={ref} id="card-space" className="body-text" >
-        {properties.finishedPicking ? <button onClick={() => properties.setPhase(1)}>Done</button> : <h2>Select three sets</h2>}
+        {properties.finishedPicking ? <button id="done-button" onClick={() => properties.setPhase(1)}>Start Draft</button> : <h2>Select three sets</h2>}
         <div id="selected-sets">
             <h1>{properties.names[0]} + {properties.names[1]} + {properties.names[2]}</h1>
         </div>
