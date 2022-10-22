@@ -1,5 +1,6 @@
 import { useRef, useEffect } from "react";
 import MtgSet from "./MtgSet";
+import { Fab } from "@mui/material";
 
 function SetDisplay(properties) {
 
@@ -9,7 +10,7 @@ function SetDisplay(properties) {
     /**
      * This useEffect is to be called every time the component is refreshed.
      */
-     useEffect(() => {
+    useEffect(() => {
         //Call a resize every time the content is refreshed
         handleResize();
     });
@@ -21,8 +22,11 @@ function SetDisplay(properties) {
     }
 
 
-    return <div  ref={ref} id="card-space" className="body-text" >
-        {properties.finishedPicking ? <button id="done-button" onClick={() => properties.setPhase(1)}>Start Draft</button> : <h2>Select three sets</h2>}
+    return <div ref={ref} id="card-space" className="body-text" >
+        {properties.finishedPicking ?
+            <Fab style={{ fontFamily: "'Goudy Mediaeval', sans-serif" }} variant='extended' color='secondary' id="done-button" onClick={() => properties.setPhase(1)}>Start Draft</Fab>
+            :
+            <h2 id="select-sets-title">Select three sets</h2>}
         <div id="selected-sets">
             <h1>{properties.names[0]} + {properties.names[1]} + {properties.names[2]}</h1>
         </div>

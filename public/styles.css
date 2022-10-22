@@ -7,6 +7,13 @@
     box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
 }
 
+#done-button{
+    margin-top: 10px;
+    padding-top: 7px;
+    font-size: 40px;
+    font-family: "'Goudy Mediaeval', sans-serif";
+}
+
 #mtg-set {
     color: #9374C3;
     border-style: ridge;
@@ -25,6 +32,10 @@
 #pie-chart {
     width: 50%;
     margin: auto;
+}
+
+#select-sets-title{
+    margin-top: 20px;
 }
 
 #selected-sets {
@@ -76,6 +87,10 @@
 
 .stat-text {
     font-size: 40px;
+}
+
+.set-button{
+    background-color: #533483;
 }
 
 button {
