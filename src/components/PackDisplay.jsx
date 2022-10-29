@@ -196,7 +196,6 @@ function PackDisplay(properties) {
             );
 
         case 1:
-            console.log(pickStats.types)
             return (
                 <div ref={ref} id="card-space" className="body-text">
                     <div style={{ borderBottom: "solid" }}>
@@ -226,7 +225,26 @@ function PackDisplay(properties) {
             return <div id="card-space" className="body-text">
                 <h2>Draft Complete</h2>                
                 <p className="stat-text">White:{pickStats.W} {Math.round((pickStats.W / 42) * 100)}% Blue:{pickStats.U} {Math.round((pickStats.U / 42) * 100)}% Black:{pickStats.B} {Math.round((pickStats.B / 42) * 100)}% Red:{pickStats.R} {Math.round((pickStats.R / 42) * 100)}% Green:{pickStats.G} {Math.round((pickStats.G / 42) * 100)}%</p>
-                <div id="pie-chart">
+                <div className="pie-chart">
+                    <PieChart
+                        labelStyle={{ fontSize: '35%' }}
+                        label={({ dataEntry }) => {
+                            let percent = Math.round(dataEntry.percentage);
+                            if (percent != 0)
+                                return `${percent} %`
+                            else
+                                return '';
+                        }}
+                        data={[
+                            { title: 'White', value: pickStats.W, color: "White" },
+                            { title: 'Blue', value: pickStats.U, color: 'Blue' },
+                            { title: 'Black', value: pickStats.B, color: '#353535' },
+                            { title: 'Red', value: pickStats.R, color: 'Red' },
+                            { title: 'Green', value: pickStats.G, color: 'Green' },
+                        ]}
+                    />
+                </div>
+                <div className="pie-chart">
                     <PieChart
                         labelStyle={{ fontSize: '35%' }}
                         label={({ dataEntry }) => {

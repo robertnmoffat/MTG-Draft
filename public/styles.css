@@ -29,8 +29,10 @@
     color: #E94560;
 }
 
-#pie-chart {
-    width: 50%;
+.pie-chart {
+    display: inline-block;
+    margin: 15px;
+    width: 40%;
     margin: auto;
 }
 
