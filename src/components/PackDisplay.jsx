@@ -152,26 +152,15 @@ function PackDisplay(properties) {
      * Adds sets abbreviated name to state holding array of selected sets to draft.
      * @param {Abbreviated name of set used by API} abbr 
      */
-    function addSet(abbr) {
+     function addSet(abbr) {
         setSelectedSets((old) => {
-            if (old.names[0] === "___") {
-                old.names[0] = abbr;
-                return old;
-            } else if (old.names[1] === "___") {
-                old.names[1] = abbr;
-                return old;
-                //If last set, set to finished and begin loading first pack prior to user start.
-            } else if (old.names[2] === "___") {
-                old.names[2] = abbr;
-                setSelectedSets((old) => {
-                    old.finishedPicking = true;
-                    return { ...old };
-                });
+            old.names[old.currentSetIndex++] = abbr;
+            if(old.currentSetIndex==3){
+                old.currentSetIndex=0;
+                old.finishedPicking=true;
                 Pack.manuallyFetchPack(setPacksData, selectedSets.names[0]);
-                return old;
-            } else {
-                return old;
             }
+            return old;
         });
         setSelectedSets((old) => { return { ...old } });
     }
