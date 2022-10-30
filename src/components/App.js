@@ -2,6 +2,7 @@ import { useState } from "react";
 import Header from "./Header"
 import Sidebar from "./Sidebar"
 import PackDisplay from "./PackDisplay"
+import MainArea from "./MainArea";
 
 function App() {
   //Height of sidebar. To be adjusted as cards are selected.
@@ -16,7 +17,7 @@ function App() {
         selectedCards={selectedCards}
         height={sidebarHeight}
       />
-      <PackDisplay
+      <MainArea
         setSelectedCards={setSelectedCards}
         setSidebarHeight={setSidebarHeight}
       />

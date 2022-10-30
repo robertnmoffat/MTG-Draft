@@ -1,10 +1,6 @@
-import { useEffect, useRef, useState } from "react";
 import Card from "./Card"
 import Pack from "../Pack"
-import MtgSetController from "../MtgSetController"
-import SetDisplay from "./SetDisplay";
-import DraftStats from './DraftStats'
-
+import { useEffect, useRef, useState } from "react";
 
 const PLAYER_COUNT = 8;
 
@@ -15,19 +11,8 @@ const PLAYER_COUNT = 8;
  */
 function PackDisplay(properties) {
     let [packsData, setPacksData] = useState({ packs: [[], [], [], [], [], [], [], []], currentPackIndex: 0 });
-    let [pickStats, setPickStats] = useState({ R: 0, G: 0, U: 0, B: 0, W: 0, types: { Creature: 0, Artifact: 0, Instant: 0, Sorcery: 0, Land: 0, Planeswalker: 0, Enchantment: 0 } });
-    let [sets, setSets] = useState([]);
-    let [selectedSets, setSelectedSets] = useState({ names: ['___', '___', '___'], finishedPicking: false, currentSetIndex: 0 });
-    let [phase, setPhase] = useState(0);
 
-    //Reference for accessing window size.
-    const ref = useRef(null);
-
-    /**
-     * If page first loaded, fetch cards from the MTG API.
-     */
     useEffect(() => {
-        MtgSetController.fetchSets(setSets);
         //Initialize empty packs. Sets image to card back so that something is shown while API is loading.
         setPacksData((old) => {
             for (let i = 0; i < PLAYER_COUNT; i++) {
@@ -36,25 +21,8 @@ function PackDisplay(properties) {
             return { ...old };
         });
 
-        //Call reset to reference of page height when it has changed.
-        window.addEventListener('resize', handleResize)
+        Pack.manuallyFetchPack(setPacksData,properties.selectedSets.names[0], 0);
     }, []);
-
-    /**
-     * This useEffect is to be called every time the component is refreshed.
-     */
-    useEffect(() => {
-        //Call a resize every time the content is refreshed
-        handleResize();
-    });
-
-    /**
-     * Reset the reference to page height.
-     */
-    function handleResize() {
-        if (ref.current != null)
-            properties.setSidebarHeight(ref.current.clientHeight);
-    }
 
     /**
      * Copies the card at the given index of the current pack into the selected cards array.
@@ -65,13 +33,13 @@ function PackDisplay(properties) {
      */
     function selectCard(cardIndex) {
         //If for some reason the pack is empty or if the pack has not yet been loaded, return without card selection.
-        if (packsData.packs[packsData.currentPackIndex % PLAYER_COUNT].length === 0 || packsData.packs[packsData.currentPackIndex % PLAYER_COUNT][cardIndex].name === "loading...") {
+        if (packsData===undefined || packsData.packs[packsData.currentPackIndex % PLAYER_COUNT].length === 0 || packsData.packs[packsData.currentPackIndex % PLAYER_COUNT][cardIndex].name === "loading...") {
             return;
         }
 
-        let currentSet = selectedSets.currentSetIndex;
+        let currentSet =properties.selectedSets.currentSetIndex;
         setPacksData((old) => {
-            //Idex of current pack. Modulus used to keep reference within range of current packs.
+            //Index of current pack. Modulus used to keep reference within range of current packs after a full round.
             const packIndex = old.currentPackIndex % PLAYER_COUNT;
 
             //Makes sure that the card has a colour that can be referenced.
@@ -83,7 +51,7 @@ function PackDisplay(properties) {
             let types = old.packs[packIndex][cardIndex].types;
 
             //Iterate through each of the card's colours and increment that colour count by one.
-            setPickStats((oldC) => {
+            properties.setPickStats((oldC) => {
                 if (colors) {
                     for (let i = 0; i < colors.length; i++) {
                         oldC[colors[i]] = oldC[colors[i]] + 1;
@@ -124,7 +92,7 @@ function PackDisplay(properties) {
                         //a pack from each set has been opened and draft is complete.
                         currentSet++;
                         if (currentSet > 2) {
-                            setPhase(2);
+                            properties.setPhase(2);
                             return;
                         }
                         break;
@@ -137,10 +105,9 @@ function PackDisplay(properties) {
 
             //If current pack is empty, load a new pack
             if (old.packs[nextPackIndex].length === 0 || old.packs[nextPackIndex][0].name === "loading...") {
-                //Pack.fetchPack(setPacksData, selectedSets.names[currentSet], (nextPackIndex));
-                Pack.manuallyFetchPack(setPacksData, selectedSets.names[currentSet], (nextPackIndex));
+                Pack.manuallyFetchPack(setPacksData,properties.selectedSets.names[currentSet], (nextPackIndex));
             }
-            setSelectedSets((old) => {
+            properties.setSelectedSets((old) => {
                 old.currentSetIndex = currentSet;
                 return { ...old };
             });
@@ -148,71 +115,33 @@ function PackDisplay(properties) {
         });
     }
 
-    /**
-     * Adds sets abbreviated name to state holding array of selected sets to draft.
-     * @param {Abbreviated name of set used by API} abbr 
-     */
-     function addSet(abbr) {
-        setSelectedSets((old) => {
-            old.names[old.currentSetIndex++] = abbr;
-            if(old.currentSetIndex==3){
-                old.currentSetIndex=0;
-                old.finishedPicking=true;
-                Pack.manuallyFetchPack(setPacksData, selectedSets.names[0]);
-            }
-            return old;
-        });
-        setSelectedSets((old) => { return { ...old } });
-    }
-
-    /**
-     * Switch on phase:
-     * Phase 0 - Choose sets to draft.
-     * Phase 1 - Select cards from packs.
-     * Phase 2 - Draft complete. Display statistics.
-     */
-    switch (phase) {
-        case 0:
-            return (
-                <SetDisplay
-                    finishedPicking={selectedSets.finishedPicking}
-                    setPhase={setPhase}
-                    names={selectedSets.names}
-                    sets={sets}
-                    addSet={addSet}
-                    setSidebarHeight={properties.setSidebarHeight}
-                />
-            );
-
-        case 1:
-            return (
-                <div ref={ref} id="card-space" className="body-text">
-                    <div style={{ borderBottom: "solid" }}>
-                        <p>{JSON.stringify(pickStats.types, null, 1).replace('{', "").replace(/"/g, "").replace("\"", "").replace("}", "")}</p>
-                        <p>White:{pickStats.W} Blue:{pickStats.U} Black:{pickStats.B} Red:{pickStats.R} Green:{pickStats.G} </p>
-                    </div>
-                    {packsData.packs[packsData.currentPackIndex % PLAYER_COUNT].map((card, index) => {
-                        return (
-                            <Card
-                                name={card.name}
-                                mana={card.manaCost}
-                                text={card.text}
-                                power={card.power}
-                                toughness={card.toughness}
-                                isSelected="false"
-                                selectCard={selectCard}
-                                key={index}
-                                id={index}
-                                imageUrl={card.imageUrl}
-                            />
-                        )
-                    })}
-                </div>
-            );
-
-        case 2:
-            return <DraftStats pickStats={pickStats} />
-    }
+    if(packsData!=undefined)
+    return (
+        <div id="card-space" className="body-text">
+            <div style={{ borderBottom: "solid" }}>
+                <p>{JSON.stringify(properties.pickStats.types, null, 1).replace('{', "").replace(/"/g, "").replace("\"", "").replace("}", "")}</p>
+                <p>White:{properties.pickStats.W} Blue:{properties.pickStats.U} Black:{properties.pickStats.B} Red:{properties.pickStats.R} Green:{properties.pickStats.G} </p>
+            </div>
+            {packsData.packs[packsData.currentPackIndex % PLAYER_COUNT].map((card, index) => {
+                return (
+                    <Card
+                        name={card.name}
+                        mana={card.manaCost}
+                        text={card.text}
+                        power={card.power}
+                        toughness={card.toughness}
+                        isSelected="false"
+                        selectCard={selectCard}
+                        key={index}
+                        id={index}
+                        imageUrl={card.imageUrl}
+                    />
+                )
+            })}
+        </div>
+    );
+    else
+    return <div></div>//Empty div to prevent error if data is blank between loading.
 }
 
 export default PackDisplay;
