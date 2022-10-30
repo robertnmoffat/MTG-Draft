@@ -21,7 +21,7 @@ function PackDisplay(properties) {
             return { ...old };
         });
 
-        Pack.manuallyFetchPack(setPacksData,properties.selectedSets.names[0], 0);
+        Pack.manuallyFetchPackParallel(setPacksData,properties.selectedSets.names[0], 0);
     }, []);
 
     /**
@@ -105,7 +105,7 @@ function PackDisplay(properties) {
 
             //If current pack is empty, load a new pack
             if (old.packs[nextPackIndex].length === 0 || old.packs[nextPackIndex][0].name === "loading...") {
-                Pack.manuallyFetchPack(setPacksData,properties.selectedSets.names[currentSet], (nextPackIndex));
+                Pack.manuallyFetchPackParallel(setPacksData,properties.selectedSets.names[currentSet], (nextPackIndex));
             }
             properties.setSelectedSets((old) => {
                 old.currentSetIndex = currentSet;

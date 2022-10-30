@@ -101,6 +101,67 @@ class Pack {
     }
 
     /**
+     * Generates packs through individual API calls to bypass patchy coverage in their pack generation.
+     * Alternate version that makes the three calls in parallel to save time.
+     * @param {*} setPacksData 
+     * @param {*} set 
+     * @param {*} amountToRemove 
+     */
+    static manuallyFetchPackParallel(setPacksData, set, amountToRemove) {
+        let threadDone = [false, false, false];
+        const r = amountToRemove === undefined ? 0 : amountToRemove;
+        let rare, uncommon, common;
+        let isMythic = Math.round(Math.random() * 7.4) === 1 ? true : false;
+        fetch(isMythic ? "https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=mythic&pageSize=1&random=true" : "https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=rare&pageSize=1&random=true")
+            .then(res => res.json())
+            .then(res => {
+                console.log('rare')
+                console.log(res)
+                rare = [res.cards[0]]
+                threadDone[0]=true;
+                if(threadDone[0]&&threadDone[1]&&threadDone[2]){
+                    threadDone[0]=false;
+                    this.createPack(setPacksData,rare, uncommon, common, r);
+                }
+            })
+        fetch("https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=uncommon&pageSize=3&random=true")
+            .then(res => res.json())
+            .then(res => {
+                console.log('uncommon')
+                console.log(res)
+                uncommon = [...res.cards];
+                threadDone[1]=true;
+                if(threadDone[0]&&threadDone[1]&&threadDone[2]){
+                    threadDone[1]=false;
+                    this.createPack(setPacksData,rare, uncommon, common, r);
+                }
+            })
+        fetch("https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=common&pageSize=10&random=true")
+            .then(res => res.json())
+            .then(res => {
+                console.log('common')
+                console.log(res)
+                common = [...res.cards]
+                threadDone[2]=true;
+                if(threadDone[0]&&threadDone[1]&&threadDone[2]){
+                    threadDone[2]=false;
+                    this.createPack(setPacksData,rare, uncommon, common, r);
+                }
+            })
+
+    }
+
+    static createPack(setPacksData, rare, uncommons, commons, r) {
+        let cards = [...rare, ...uncommons, ...commons];
+        setPacksData((old) => {
+            old.packs[old.currentPackIndex % 8] = (cards.filter((card, index) => {
+                return index >= r;
+            }))
+            return { ...old };
+        })
+    }
+
+    /**
      * Fetches a pack from the API, removes a set amount of cards and copies it into the current pack.
      * @param {Function to update pack data} setPacksData 
      * @param {Magic set to be fetched from API} set 
