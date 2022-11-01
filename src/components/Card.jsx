@@ -25,9 +25,17 @@ function Card(properties) {
             </div>
         )
     } else {
+
+        let classes;
+        if(properties.isSelected==="true"){
+            classes = "selected-card";
+        }else if(properties.name!="loading..."){
+            classes = "pack-card loaded";
+        }
+
         return (
-            <img
-                className={properties.isSelected === "true" ? "selected-card" : "pack-card"}
+            <img 
+                className={classes}
                 onClick={() => {
                     if (properties.isSelected === "false")
                         properties.selectCard(properties.id)
