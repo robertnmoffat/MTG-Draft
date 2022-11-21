@@ -1,7 +1,8 @@
 # Description
 
 This project is meant as a practice exercise in creating a full react app. There are other sites which have the same functionality and better drafting logic. This project is only meant to show a fully developed react app utilizing data accessed from an external API.<br>
-A running example of the project can be found <a href="http://143.198.62.169:3535/">here</href>.
+A running example of the project can be found [here.](http://143.198.62.169:3535/) <br>
+(Note: This app would be significantly sped up if it stored card information and images locally but this project was meant to illustrate capability in using external APIs.)
 
 ## Drafting process
 
