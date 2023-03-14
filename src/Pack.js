@@ -39,7 +39,14 @@ class Pack {
      * @param {Magic set to be fetched from API} set 
      */
     static fetchPack(setPacksData, set) {
-        fetch("https://api.magicthegathering.io/v1/sets/" + set + "/booster")
+        let options = {
+            method: 'GET',
+            mode: 'cors',
+            headers: {
+                'Access-Control-Allow-Origin': '*'
+            }
+        };
+        fetch("https://api.magicthegathering.io/v1/sets/" + set + "/booster", options)
             .then(res => res.json())
             .then(json => {
                 setPacksData((old) => {
@@ -60,17 +67,24 @@ class Pack {
      * @param {*} amountToRemove 
      */
     static manuallyFetchPack(setPacksData, set, amountToRemove) {
+        let options = {
+            method: 'GET',
+            mode: 'cors',
+            headers: {
+                'Access-Control-Allow-Origin': '*'
+            }
+        };
         const r = amountToRemove === undefined ? 0 : amountToRemove;
         let cards = [];
         let isMythic = Math.round(Math.random() * 7.4) === 1 ? true : false;
-        fetch(isMythic ? "https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=mythic&pageSize=1&random=true" : "https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=rare&pageSize=1&random=true")
+        fetch(isMythic ? "https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=mythic&pageSize=1&random=true" : "https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=rare&pageSize=1&random=true", options)
             .then(res => res.json())
             .then(res => {
                 console.log('rare')
                 console.log(res)
                 cards = [res.cards[0]]
             }).then(res => {
-                fetch("https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=uncommon&pageSize=3&random=true")
+                fetch("https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=uncommon&pageSize=3&random=true", options)
                     .then(res => res.json())
                     .then(
                         res => {
@@ -79,7 +93,7 @@ class Pack {
                             cards = [...cards, ...res.cards]
                         })
                     .then(res => {
-                        fetch("https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=common&pageSize=10&random=true")
+                        fetch("https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=common&pageSize=10&random=true", options)
                             .then(res => res.json())
                             .then(
                                 res => {
@@ -108,44 +122,49 @@ class Pack {
      * @param {*} amountToRemove 
      */
     static manuallyFetchPackParallel(setPacksData, set, amountToRemove) {
+        let options = {
+            headers: {
+                'Access-Control-Allow-Origin': '*'
+            }
+        };
         let threadDone = [false, false, false];
         const r = amountToRemove === undefined ? 0 : amountToRemove;
         let rare, uncommon, common;
         let isMythic = Math.round(Math.random() * 7.4) === 1 ? true : false;
-        fetch(isMythic ? "https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=mythic&pageSize=1&random=true" : "https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=rare&pageSize=1&random=true")
+        fetch(isMythic ? "https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=mythic&pageSize=1&random=true" : "https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=rare&pageSize=1&random=true", options)
             .then(res => res.json())
             .then(res => {
                 console.log('rare')
                 console.log(res)
                 rare = [res.cards[0]]
-                threadDone[0]=true;
-                if(threadDone[0]&&threadDone[1]&&threadDone[2]){
-                    threadDone[0]=false;
-                    this.createPack(setPacksData,rare, uncommon, common, r);
+                threadDone[0] = true;
+                if (threadDone[0] && threadDone[1] && threadDone[2]) {
+                    threadDone[0] = false;
+                    this.createPack(setPacksData, rare, uncommon, common, r);
                 }
             })
-        fetch("https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=uncommon&pageSize=3&random=true")
+        fetch("https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=uncommon&pageSize=3&random=true", options)
             .then(res => res.json())
             .then(res => {
                 console.log('uncommon')
                 console.log(res)
                 uncommon = [...res.cards];
-                threadDone[1]=true;
-                if(threadDone[0]&&threadDone[1]&&threadDone[2]){
-                    threadDone[1]=false;
-                    this.createPack(setPacksData,rare, uncommon, common, r);
+                threadDone[1] = true;
+                if (threadDone[0] && threadDone[1] && threadDone[2]) {
+                    threadDone[1] = false;
+                    this.createPack(setPacksData, rare, uncommon, common, r);
                 }
             })
-        fetch("https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=common&pageSize=10&random=true")
+        fetch("https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=common&pageSize=10&random=true", options)
             .then(res => res.json())
             .then(res => {
                 console.log('common')
                 console.log(res)
                 common = [...res.cards]
-                threadDone[2]=true;
-                if(threadDone[0]&&threadDone[1]&&threadDone[2]){
-                    threadDone[2]=false;
-                    this.createPack(setPacksData,rare, uncommon, common, r);
+                threadDone[2] = true;
+                if (threadDone[0] && threadDone[1] && threadDone[2]) {
+                    threadDone[2] = false;
+                    this.createPack(setPacksData, rare, uncommon, common, r);
                 }
             })
 
@@ -168,8 +187,15 @@ class Pack {
      * @param {Amount of cards to remove from the pack before being copied} amountToRemove 
      */
     static fetchPack(setPacksData, set, amountToRemove) {
+        let options = {
+            method: 'GET',
+            mode: 'cors',
+            headers: {
+                'Access-Control-Allow-Origin': '*'
+            }
+        };
         const r = amountToRemove === undefined ? 0 : amountToRemove;
-        fetch("https://api.magicthegathering.io/v1/sets/" + set + "/booster")
+        fetch("https://api.magicthegathering.io/v1/sets/" + set + "/booster", options)
             .then(res => res.json())
             .then(json => {
                 setPacksData((old) => {
