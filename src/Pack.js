@@ -77,14 +77,14 @@ class Pack {
         const r = amountToRemove === undefined ? 0 : amountToRemove;
         let cards = [];
         let isMythic = Math.round(Math.random() * 7.4) === 1 ? true : false;
-        fetch(isMythic ? "https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=mythic&pageSize=1&random=true" : "https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=rare&pageSize=1&random=true", options)
+        fetch(isMythic ? "http://localhost:3001/manuallyFetchPackParallel?set=" + set + "&rarity=mythic&pageSize=1&random=true" : "http://localhost:3001/manuallyFetchPackParallel?set=" + set + "&rarity=rare&pageSize=1&random=true")
             .then(res => res.json())
             .then(res => {
                 console.log('rare')
                 console.log(res)
                 cards = [res.cards[0]]
             }).then(res => {
-                fetch("https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=uncommon&pageSize=3&random=true", options)
+                fetch("http://localhost:3001/manuallyFetchPackParallel?set=" + set + "&rarity=uncommon&pageSize=3&random=true")
                     .then(res => res.json())
                     .then(
                         res => {
@@ -93,7 +93,7 @@ class Pack {
                             cards = [...cards, ...res.cards]
                         })
                     .then(res => {
-                        fetch("https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=common&pageSize=10&random=true", options)
+                        fetch("http://localhost:3001/manuallyFetchPackParallel?set=" + set + "&rarity=common&pageSize=10&random=true")
                             .then(res => res.json())
                             .then(
                                 res => {
@@ -123,15 +123,16 @@ class Pack {
      */
     static manuallyFetchPackParallel(setPacksData, set, amountToRemove) {
         let options = {
-            headers: {
-                'Access-Control-Allow-Origin': '*'
-            }
+            mode: 'no-cors'
+            // headers: {
+            //     'Access-Control-Allow-Origin': '*'
+            // }
         };
         let threadDone = [false, false, false];
         const r = amountToRemove === undefined ? 0 : amountToRemove;
         let rare, uncommon, common;
         let isMythic = Math.round(Math.random() * 7.4) === 1 ? true : false;
-        fetch(isMythic ? "https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=mythic&pageSize=1&random=true" : "https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=rare&pageSize=1&random=true", options)
+        fetch(isMythic ? "http://localhost:3001/manuallyFetchPackParallel?set=" + set + "&rarity=mythic&pageSize=1&random=true" : "http://localhost:3001/manuallyFetchPackParallel?set=" + set + "&rarity=rare&pageSize=1&random=true")
             .then(res => res.json())
             .then(res => {
                 console.log('rare')
@@ -143,7 +144,7 @@ class Pack {
                     this.createPack(setPacksData, rare, uncommon, common, r);
                 }
             })
-        fetch("https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=uncommon&pageSize=3&random=true", options)
+        fetch("http://localhost:3001/manuallyFetchPackParallel?set=" + set + "&rarity=uncommon&pageSize=3&random=true")
             .then(res => res.json())
             .then(res => {
                 console.log('uncommon')
@@ -155,7 +156,7 @@ class Pack {
                     this.createPack(setPacksData, rare, uncommon, common, r);
                 }
             })
-        fetch("https://api.magicthegathering.io/v1/cards?set=" + set + "&rarity=common&pageSize=10&random=true", options)
+        fetch("http://localhost:3001/manuallyFetchPackParallel?set=" + set + "&rarity=common&pageSize=10&random=true")
             .then(res => res.json())
             .then(res => {
                 console.log('common')

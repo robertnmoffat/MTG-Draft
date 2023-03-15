@@ -2,7 +2,6 @@
   "name": "mtg-draft",
   "version": "0.1.0",
   "private": true,
-  "proxy": "https://api.magicthegathering.io/v1/sets",
   "dependencies": {
     "@emotion/react": "^11.10.4",
     "@emotion/styled": "^11.10.4",
@@ -18,7 +17,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "PORT=3535 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
