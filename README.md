@@ -4,6 +4,10 @@ This project is meant as a practice exercise in creating a full react app. There
 A running example of the project can be found [here.](http://143.198.62.169:3535/) <br>
 (Note: This app would be significantly sped up if it stored card information and images locally but this project was meant to illustrate capability in using external APIs.)
 
+#### Update
+
+The external Magic the Gathering API has become very slow. This has caused the site to become more or less unuseable with card requests taking ~1 minute to be completed. I will likely be moving to a local server containing card information, but for the meantime it is unfortuneately very very slow.
+
 ## Drafting process
 
 If you are not familiar with the drafting process it is as follows:
